@@ -47,20 +47,19 @@ if __name__ == '__main__':
     print'{0}{1:^18}{2}'.format('CONTAINER ID','TAG','UP TO DATE?')
 
     for i in responded:
-        container = client.containers.get(i.short_id)
-        raw_repo = container.attrs['Config']['Image']
-        repo = raw_repo.split(":")[0]
-
         if not i.image.attrs['RepoDigests']:
             continue
 
-        local_digest = i.image.attrs['RepoDigests'][0].split(":")[1]
+        raw_repo = i.attrs['Config']['Image']
 
-        try :
+        if ":" in raw_repo:
+            repo = raw_repo.split(":")[0]
             tags = raw_repo.split(":")[1]
-        except:
+        else:
+            repo = raw_repo
             tags = "latest"
 
+        local_digest = i.image.attrs['RepoDigests'][0].split(":")[1]
         remote_digest = check_remote_digest(repo, tags)
 
         if remote_digest == "-1":
